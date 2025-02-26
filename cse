@@ -1,0 +1,103 @@
+#!/bin/fish
+
+if test "$argv[1]" = help
+    echo 'Usage: cse [command]'
+    echo
+    echo 'Commands:'
+    echo '    help      Print this help message'
+    echo '    local     Print the local directory'
+    echo '    remote    Print the remote directory'
+    echo '    pull      Pull changes from the CSE server to the local machine'
+    echo '    push      Push changes from the local machine to the CSE server'
+    echo
+    echo 'If no command is specified, ssh into the CSE server.'
+    echo 'If an unrecognised command is specified, ssh into the CSE server and execute the command.'
+
+    exit
+end
+
+function invalid-zid -a zid
+    test (string length $zid) != 8 -o (string sub -e 1 $zid) != z
+end
+
+function get-zid
+    read -lp "echo -n 'Enter your zID: '" zid
+    if invalid-zid "$zid"
+        echo -e "\x1b[31mInvalid zID: $zid" >&2
+        get-zid
+    else
+        echo $zid
+    end
+end
+
+function pull -a login from to
+    rsync -a --delete -r -P $login:$from/ $to
+end
+
+function push -a login from to
+    rsync -a --delete -r -P $from/ $login:$to
+end
+
+set -q XDG_CONFIG_HOME && set -l config $XDG_CONFIG_HOME || set -l config $HOME/.config
+set -l local_dir $HOME/Desktop/CSE
+set -l remote_dir ./Desktop
+
+if test "$argv[1]" = local
+    echo $local_dir
+    exit
+end
+
+if test "$argv[1]" = remote
+    echo $remote_dir
+    exit
+end
+
+# Get zID from file or prompt
+mkdir -p $config/cse
+test -f $config/cse/zid.txt && set -l zid (cat $config/cse/zid.txt) || set -l zid (get-zid | tee $config/cse/zid.txt)
+set -l login $zid@cse.unsw.edu.au
+
+# If user cancelled zID prompt
+if invalid-zid "$zid"
+    echo -e '\x1b[31mInvalid zID. Exiting.'
+    rm $config/cse/zid.txt
+    exit 1
+end
+
+# Ensure ssh keys are set up
+ssh-keygen -A
+ssh-copy-id $login 2> /dev/null
+
+# Pull changes from CSE server using rsync
+if test "$argv[1]" = pull
+    pull $login $remote_dir $local_dir
+    exit
+end
+
+# Push changes to CSE server using rsync
+if test "$argv[1]" = push
+    push $login $local_dir $remote_dir
+    exit
+end
+
+set -l relative_dir (realpath --relative-to $local_dir (pwd))
+string match -qr '\.\./.*' $relative_dir || set -l in_synced_dir  # If path starts with ../ it is outside the synced dir
+
+# SSH into CSE server
+if test -z "$argv"
+    # If the current directory is in the local directory, push before ssh
+    if set -q in_synced_dir
+        push $login $local_dir $remote_dir
+        ssh -t $login "cd $remote_dir/$relative_dir ; exec \$SHELL -l"
+    else
+        ssh $login
+    end
+else
+    # If args are provided, execute them in the remote server
+    if set -q in_synced_dir
+        push $login $local_dir $remote_dir
+        ssh -t $login "cd $remote_dir/$relative_dir && $argv"
+    else
+        ssh -t $login $argv
+    end
+end
