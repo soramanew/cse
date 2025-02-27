@@ -48,5 +48,5 @@ If an unrecognised command is specified, ssh into the CSE server and execute the
 > e.g.
 >
 > ```
-> 1511 style test.c
+> cse 1511 autotest test.c
 > ```
