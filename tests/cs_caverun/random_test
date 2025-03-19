@@ -1,0 +1,48 @@
+4 4
+l 4 5
+w 5 2
+W 5 2 6 3
+W 3 5 7 4
+w 3 6
+b 3 6
+b 2 8
+b 20 5
+e 2 67
+e 3 6
+e 7 4
+g 2 6
+g 3 6
+g 3 5
+g 93 0
+g 0 3
+l 4 6
+l 2 3
+l 9 3
+s
+p
+m
+DD
+p
+m
+w
+a
+s
+d
+L
+DD
+AD
+d
+i 8
+u
+s
+a
+a
+a
+a
+a
+r
+DW
+d
+d
+SS
+q
