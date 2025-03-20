@@ -5,14 +5,27 @@ if test "$argv[1]" = help
     echo
     echo 'Commands:'
     echo '    help      Print this help message'
+    echo '    update    Update this script'
     echo '    local     Print the local directory'
     echo '    remote    Print the remote directory'
     echo '    pull      Pull changes from the CSE server to the local machine'
     echo '    push      Push changes from the local machine to the CSE server'
     echo '    test      Autotest assignments against self-made test cases'
     echo
-    echo 'If no command is specified, ssh into the CSE server.'
-    echo 'If an unrecognised command is specified, ssh into the CSE server and execute the command.'
+    echo 'If no command is specified, SSH into the CSE server.'
+    echo 'If an unrecognised command is specified, SSH into the CSE server and execute the command.'
+
+    exit
+end
+
+set -l src (dirname (realpath (status filename)))
+
+if test "$argv[1]" = update
+    echo 'Updating...'
+
+    cd $src || exit 1
+    git pull
+    ./install.fish
 
     exit
 end
@@ -104,12 +117,14 @@ ssh-copy-id $login 2> /dev/null
 
 # Pull changes from CSE server using rsync
 if test "$argv[1]" = pull
+    echo 'Pulling from remote...'
     pull $login $remote_dir $local_dir
     exit
 end
 
 # Push changes to CSE server using rsync
 if test "$argv[1]" = push
+    echo 'Pushing to remote...'
     push $login $local_dir $remote_dir
     exit
 end
@@ -123,12 +138,14 @@ if test "$argv[1]" = test
     end
 
     set -l prog_name (basename $argv[2] .c)
-    set -l tests (dirname (realpath (status filename)))/tests/$prog_name
+    set -l tests $src/tests/$prog_name
 
     if ! test -d $tests
         err "No tests found for $prog_name"
         exit 1
     end
+
+    echo 'Starting autotest...'
 
     set -l exec_path /tmp/cse/$prog_name/$prog_name
 
