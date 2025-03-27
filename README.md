@@ -27,19 +27,21 @@ On first usage, the script will ask for your zID and if you have not created a `
 your CSE password. Your zID will be stored in `$XDG_CONFIG_HOME/cse/zid.txt` for future
 runs.
 
-```sh
+```
 $ cse help
 Usage: cse [command]
 
 Commands:
     help      Print this help message
+    update    Update this script
     local     Print the local directory
     remote    Print the remote directory
     pull      Pull changes from the CSE server to the local machine
     push      Push changes from the local machine to the CSE server
+    test      Autotest assignments against self-made test cases
 
-If no command is specified, ssh into the CSE server.
-If an unrecognised command is specified, ssh into the CSE server and execute the command.
+If no command is specified, SSH into the CSE server.
+If an unrecognised command is specified, SSH into the CSE server and execute the command.
 ```
 
 > [!TIP]
