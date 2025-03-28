@@ -39,6 +39,7 @@ Commands:
     pull      Pull changes from the CSE server to the local machine
     push      Push changes from the local machine to the CSE server
     test      Autotest assignments against self-made test cases
+    style     Check for style issues within a program
 
 If no command is specified, SSH into the CSE server.
 If an unrecognised command is specified, SSH into the CSE server and execute the command.
