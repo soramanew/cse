@@ -11,6 +11,7 @@ if test "$argv[1]" = help
     echo '    pull      Pull changes from the CSE server to the local machine'
     echo '    push      Push changes from the local machine to the CSE server'
     echo '    test      Autotest assignments against self-made test cases'
+    echo '    style     Check for style issues within a program'
     echo
     echo 'If no command is specified, SSH into the CSE server.'
     echo 'If an unrecognised command is specified, SSH into the CSE server and execute the command.'
@@ -191,6 +192,47 @@ if test "$argv[1]" = test
     test $failed -eq 0 && set_color green || set_color red
     echo " $failed tests failed"
     set_color normal
+
+    exit
+end
+
+if test "$argv[1]" = style
+    set -l source_path $argv[2]
+
+    if ! test -f $source_path
+        err "Invalid program: $source_path"
+        exit 1
+    end
+
+    # Run 1511 style
+    push $login $local_dir $remote_dir
+    set -l relative_dir (realpath --relative-to $local_dir (dirname $source_path))
+    cse-ssh $login $local_dir $remote_dir "cd $remote_dir/$relative_dir && 1511 style $(basename $source_path)"
+
+    # Find magic numbers
+    echo  # Spacer
+
+    # Magic numbers are defined as: any number not between -2 and 2 or a character
+    set -l magic_number_pattern '((\+|-)?([3-9]|[0-9][0-9]+)(\.[0-9]+)?|\'.\')'
+    # Exclusions include #defines, comments, typedefs and enums
+    set -l exclusions '^\s*(#define|//|\*|typedef|enum|([A-Z_]+\s*=))'
+    set -l magic_numbers (grep -E $magic_number_pattern $source_path | grep -vE $exclusions)
+
+    if test -z "$magic_numbers"
+        echo 'No magic numbers found!'
+    else
+        set -l num (echo "$magic_numbers" | grep -oE $magic_number_pattern | count)
+        test $num -eq 1 || set -l plural 's'
+        echo "$num magic number$plural found:"
+        for line in $magic_numbers
+            set -l line_with_num (grep -Fxn $line $source_path)
+            set -l split (string split -m 2 ':' $line_with_num)
+            set_color green
+            printf 'Line %s:' $split[1]
+            set_color normal
+            string replace -ar $magic_number_pattern '\x1b[1;31m${1}\x1b[0m' $split[2]
+        end
+    end
 
     exit
 end
