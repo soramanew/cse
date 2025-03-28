@@ -252,6 +252,40 @@ if test "$argv[1]" = style
         end
     end
 
+    # Check for missing function prototypes/implementations and comments
+    set -l identifier '[a-zA-Z_][a-zA-Z0-9_]*'
+    set -l function_pattern "^((struct|enum)\s+)?$identifier\s+$identifier\("
+    set -l func_proto_or_impls (grep -oE $function_pattern $source_path | sort -u)
+
+    set -l missing_proto_or_impl
+    set -l missing_comments
+
+    for func in $func_proto_or_impls
+        if ! string match -qr "^int\s+main\(" $func
+            set -l func_name (string split '(' $func)[1]
+            test (grep -c "^$func_name(" $source_path) -lt 2 && set -a missing_proto_or_impl $func_name
+            test (grep -B 1 "^$func_name(" $source_path | grep -cE '^\s*(//|\*/)') -lt 1 && set -a missing_comments $func_name
+        end
+    end
+
+    if test -z "$missing_proto_or_impl"
+        echo 'No missing function prototypes or implementations!'
+    else
+        set -l num (count $missing_proto_or_impl)
+        test $num -eq 1 || set -l plural 's'
+        echo "Missing prototype or implementation for $num function$plural:"
+        printf '%s\n' $missing_proto_or_impl
+    end
+
+    if test -z "$missing_comments"
+        echo 'No missing function comments!'
+    else
+        set -l num (count $missing_comments)
+        test $num -eq 1 || set -l plural 's'
+        echo "Missing function comment $num function$plural:"
+        printf '%s\n' $missing_comments
+    end
+
     exit
 end
 
