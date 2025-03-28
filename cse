@@ -209,9 +209,9 @@ if test "$argv[1]" = style
     set -l relative_dir (realpath --relative-to $local_dir (dirname $source_path))
     cse-ssh $login $local_dir $remote_dir "cd $remote_dir/$relative_dir && 1511 style $(basename $source_path)"
 
-    # Find magic numbers
     echo  # Spacer
 
+    # Find magic numbers
     # Magic numbers are defined as: any number not between -2 and 2 or a character
     set -l magic_number_pattern '((\+|-)?([3-9]|[0-9][0-9]+)(\.[0-9]+)?|\'.\')'
     # Exclusions include #defines, comments, typedefs and enums
@@ -231,6 +231,24 @@ if test "$argv[1]" = style
             printf 'Line %s:' $split[1]
             set_color normal
             string replace -ar $magic_number_pattern '\x1b[1;31m${1}\x1b[0m' $split[2]
+        end
+    end
+
+    # Check for missing braces
+    set -l missing_brace_pattern '\s*(\}\s*)?(if|else if|else|while|for)\s*\(.*\)'
+    set -l missing_braces (grep -xnE $missing_brace_pattern $source_path)
+    if test -z "$missing_braces"
+        echo 'No conditions/loops with missing braces found!'
+    else
+        set -l num (count $missing_braces)
+        test $num -eq 1 || set -l plural 's'
+        echo "$num missing brace$plural found:"
+        for line in $missing_braces
+            set -l split (string split -m 2 ':' $line)
+            set_color green
+            printf 'Line %s:' $split[1]
+            set_color normal
+            echo $split[2]
         end
     end
 
