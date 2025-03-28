@@ -274,7 +274,9 @@ if test "$argv[1]" = style
         set -l num (count $missing_proto_or_impl)
         test $num -eq 1 || set -l plural 's'
         echo "Missing prototype or implementation for $num function$plural:"
+        set_color red
         printf '%s\n' $missing_proto_or_impl
+        set_color normal
     end
 
     if test -z "$missing_comments"
@@ -283,7 +285,9 @@ if test "$argv[1]" = style
         set -l num (count $missing_comments)
         test $num -eq 1 || set -l plural 's'
         echo "Missing function comment $num function$plural:"
+        set_color red
         printf '%s\n' $missing_comments
+        set_color normal
     end
 
     exit
