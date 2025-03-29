@@ -212,10 +212,10 @@ if test "$argv[1]" = style
     echo  # Spacer
 
     # Find magic numbers
-    # Magic numbers are defined as: any number not between -2 and 2 or a character
-    set -l magic_number_pattern '((\+|-)?([3-9]|[0-9][0-9]+)(\.[0-9]+)?|\'.\')'
-    # Exclusions include #defines, comments, typedefs and enums
-    set -l exclusions '^\s*(#define|//|\*|typedef|enum|([A-Z_]+\s*=))'
+    # Magic numbers are defined as: any decimal or any int not between -2 and 2 or a character
+    set -l magic_number_pattern '((\+|-)?([0-9]+\.[0-9]+|[0-9][0-9]+|[3-9])|\'.\')'
+    # Exclusions include #defines, comments, typedefs, enums or 0.0
+    set -l exclusions '^\s*(#define|//|\*|typedef|enum|([A-Z_]+\s*=))|0\.0'
     set -l magic_numbers (grep -E $magic_number_pattern $source_path | grep -vE $exclusions)
 
     if test -z "$magic_numbers"
