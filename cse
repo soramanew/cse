@@ -10,6 +10,7 @@ if test "$argv[1]" = help
     echo '    remote    Print the remote directory'
     echo '    pull      Pull changes from the CSE server to the local machine'
     echo '    push      Push changes from the local machine to the CSE server'
+    echo '    give      Shortcut for give'
     echo '    test      Autotest assignments against self-made test cases'
     echo '    style     Check for style issues within a program'
     echo
@@ -128,6 +129,17 @@ if test "$argv[1]" = push
     echo 'Pushing to remote...'
     push $login $local_dir $remote_dir
     exit
+end
+
+# Shortcut for give
+if test "$argv[1]" = give
+    set -l source_path $argv[3]
+    set -l task $argv[2]_(basename $source_path .c)
+    set -l file (basename $source_path)
+
+    push $login $local_dir $remote_dir
+    set -l relative_dir (realpath --relative-to $local_dir (dirname $source_path))
+    cse-ssh $login $local_dir $remote_dir "cd $remote_dir/$relative_dir && echo 'yes\nyes' | give cs1511 $task $file"
 end
 
 # Autotest assignments

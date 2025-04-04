@@ -10,5 +10,6 @@ complete -c cse -n $no_args -a 'local' -d 'Print local directory' -f
 complete -c cse -n $no_args -a 'remote' -d 'Print remote directory' -f
 complete -c cse -n $no_args -a 'pull' -d 'Pull changes from remote to local' -f
 complete -c cse -n $no_args -a 'push' -d 'Push changes from local to remote' -f
+complete -c cse -n $no_args -a 'give' -d 'Shortcut for give' -f
 complete -c cse -n $no_args -a 'test' -d 'Autotest assignments against self-made test cases' -f
 complete -c cse -n $no_args -a 'style' -d 'Check for style issues within a program' -f
