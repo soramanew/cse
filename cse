@@ -133,13 +133,13 @@ end
 
 # Shortcut for give
 if test "$argv[1]" = give
-    set -l source_path $argv[3]
-    set -l task $argv[2]_(basename $source_path .c)
-    set -l file (basename $source_path)
+    set -l file $argv[3]
+    set -l task $argv[2]_(basename $file .c)
 
     push $login $local_dir $remote_dir
-    set -l relative_dir (realpath --relative-to $local_dir (dirname $source_path))
-    cse-ssh $login $local_dir $remote_dir "cd $remote_dir/$relative_dir && echo 'yes\nyes' | give cs1511 $task $file"
+    cse-ssh $login $local_dir $remote_dir "echo 'yes\nyes' | give cs1511 $task $file"
+
+    exit
 end
 
 # Autotest assignments
