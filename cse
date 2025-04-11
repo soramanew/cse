@@ -218,8 +218,7 @@ if test "$argv[1]" = style
 
     # Run 1511 style
     push $login $local_dir $remote_dir
-    set -l relative_dir (realpath --relative-to $local_dir (dirname $source_path))
-    cse-ssh $login $local_dir $remote_dir "cd $remote_dir/$relative_dir && 1511 style $(basename $source_path)"
+    cse-ssh $login $local_dir $remote_dir "1511 style $source_path"
 
     echo  # Spacer
 
