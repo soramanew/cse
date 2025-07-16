@@ -1,4 +1,4 @@
-#!/bin/fish
+#!/usr/bin/env fish
 
 if test "$argv[1]" = help
     echo 'Usage: cse [command]'
@@ -88,6 +88,7 @@ end
 set -q XDG_CONFIG_HOME && set -l config $XDG_CONFIG_HOME || set -l config $HOME/.config
 set -l local_dir $HOME/Desktop/CSE
 set -l remote_dir ./Desktop
+set -q CSE_COURSE && set -l course $CSE_COURSE || set -l course 1511
 
 # Print local dir
 if test "$argv[1]" = local
@@ -134,10 +135,10 @@ end
 # Shortcut for give
 if test "$argv[1]" = give
     set -l file $argv[3]
-    set -l task $argv[2]_(basename $file .c)
+    set -l task $argv[2]_(basename (basename $file .c) .s)
 
     push $login $local_dir $remote_dir
-    cse-ssh $login $local_dir $remote_dir "echo 'yes\nyes' | give cs1511 $task $file"
+    cse-ssh $login $local_dir $remote_dir "echo 'yes\nyes' | give cs$course $task $file"
 
     exit
 end
@@ -175,8 +176,8 @@ if test "$argv[1]" = test
         set -l out_dir /tmp/cse/$prog_name/$test_name
         mkdir -p $out_dir
 
-        # Remove carriage returns cause 1511 uses CRLF for newlines for some reason (Unix uses LF so we want LF only)
-        cse-ssh $login $local_dir $remote_dir "echo '$(cat $test)' | 1511 $prog_name" | tr -d '\r' > $out_dir/expected
+        # Remove carriage returns cause UNSW uses CRLF for newlines for some reason (Unix uses LF so we want LF only)
+        cse-ssh $login $local_dir $remote_dir "echo '$(cat $test)' | $course $prog_name" | tr -d '\r' > $out_dir/expected
         cat $test | $exec_path > $out_dir/out
         if cmp --silent $out_dir/expected $out_dir/out
             set passed (math $passed + 1)
@@ -216,9 +217,9 @@ if test "$argv[1]" = style
         exit 1
     end
 
-    # Run 1511 style
+    # Run style command
     push $login $local_dir $remote_dir
-    cse-ssh $login $local_dir $remote_dir "1511 style $source_path"
+    cse-ssh $login $local_dir $remote_dir "$course style $source_path"
 
     echo  # Spacer
 
