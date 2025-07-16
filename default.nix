@@ -30,9 +30,8 @@ in
     installPhase = ''
       install -Dm755 cse $out/bin/cse
       wrapProgram $out/bin/cse --prefix PATH : ${lib.makeBinPath runtimeDeps}
+      installShellCompletion completions/cse.fish
     '';
-
-    postInstall = "installShellCompletion completions/cse.fish";
 
     meta = {
       description = "A helper script for UNSW CSE students";
