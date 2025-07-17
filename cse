@@ -53,7 +53,7 @@ function get-zid
 end
 
 function pull -a login from to
-    rsync -a --delete -r -P $login:$from/ $to >&2
+    rsync -L -a --delete -r -P $login:$from/ $to >&2
 end
 
 function push -a login from to
