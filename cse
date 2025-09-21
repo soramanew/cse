@@ -10,7 +10,7 @@ if test "$argv[1]" = help
     echo '    remote    Print the remote directory'
     echo '    pull      Pull changes from the CSE server to the local machine'
     echo '    push      Push changes from the local machine to the CSE server'
-    echo '    give      Shortcut for give'
+    echo '    sgive      Shortcut for give'
     echo '    test      Autotest assignments against self-made test cases'
     echo '    style     Check for style issues within a program'
     echo
@@ -133,9 +133,9 @@ if test "$argv[1]" = push
 end
 
 # Shortcut for give
-if test "$argv[1]" = give
+if test "$argv[1]" = sgive
     set -l file $argv[3]
-    set -l task $argv[2]_(basename (basename $file .c) .s)
+    test -n "$file" && set -l task $argv[2]_(basename (basename $file .c) .s) || set -l task $argv[2]
 
     push $login $local_dir $remote_dir
     cse-ssh $login $local_dir $remote_dir "echo 'yes\nyes' | give cs$course $task $file"
