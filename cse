@@ -57,7 +57,7 @@ function pull -a login from to
 end
 
 function push -a login from to
-    find $from/ | xargs file | awk -F: '$2 ~ /executable/ {print $1}' | string replace $from '' | rsync --exclude-from=- --delete-excluded -a --delete -r -P $from/ $login:$to >&2
+    find $from/ | xargs file | awk -F: '$2 ~ /executable/ {print $1}' | string replace $from '' | rsync --exclude-from=- --exclude='*.o' --delete-excluded -a --delete -r -P $from/ $login:$to >&2
 end
 
 function cse-ssh -a login local_dir remote_dir
